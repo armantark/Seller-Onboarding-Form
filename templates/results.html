@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <meta charset="utf-8">
+    <title>Results Page</title>
+    <script>
+        function displayEntries() {
+            const entries = JSON.parse(localStorage.getItem('entries')) || [];
+            const table = document.querySelector('#entriesTable tbody');
+            table.innerHTML = '';
+
+            entries.forEach(entry => {
+                const row = document.createElement('tr');
+
+                for (const key in entry) {
+                    if (entry.hasOwnProperty(key)) {
+                        const cell = document.createElement('td');
+                        cell.textContent = entry[key];
+                        row.appendChild(cell);
+                    }
+                }
+
+                table.appendChild(row);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', displayEntries);
+        function wipeData() {
+            localStorage.removeItem("entries");
+            location.reload();
+        }
+    </script>
+</head>
+<body class="bg-light">
+<div class="container my-5">
+    <h1>Results</h1>
+    <button onclick="wipeData()" class="btn btn-danger mb-2">Wipe Data</button>
+    <table id="entriesTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>id</th>
+                <th>store_name</th>
+                <th>balance</th>
+                <th>selling_price</th>
+                <th>network</th>
+                <th>receiving_address</th>
+                <th>preference</th>
+                <th>card_number</th>
+                <th>card_pin</th>
+                <th>email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.id }}</td>
+                    <td>{{ result.store_name }}</td>
+                    <td>{{ result.balance }}</td>
+                    <td>{{ result.selling_price }}</td>
+                    <td>{{ result.network }}</td>
+                    <td>{{ result.receiving_address }}</td>
+                    <td>{{ result.preference }}</td>
+                    <td>{{ result.card_number }}</td>
+                    <td>{{ result.card_pin }}</td>
+                    <td>{{ result.email }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

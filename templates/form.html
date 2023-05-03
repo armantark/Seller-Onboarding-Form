@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <meta charset="utf-8">
+    <title>Seller Onboarding Form</title>
+    <style>
+        .question {
+            display: none;
+        }
+
+        .question.active {
+            display: block;
+        }
+    </style>
+    <script>
+        let currentEntryId;
+
+        function getNewEntryId() {
+            const entries = JSON.parse(localStorage.getItem('entries')) || [];
+            console.log(entries);
+            return entries.length + 1;
+        }
+
+        function updateLocalStorage() {
+            const entries = JSON.parse(localStorage.getItem('entries')) || [];
+            const formData = new FormData(document.querySelector('form'));
+            let entryData = Object.fromEntries(formData.entries());
+
+            entryData = { id: currentEntryId, ...entryData };
+            const entryIndex = entries.findIndex(entry => entry.id === currentEntryId);
+
+            if (entryIndex > -1) {
+                entries[entryIndex] = entryData;
+            } else {
+                entries.push(entryData);
+            }
+
+            localStorage.setItem('entries', JSON.stringify(entries));
+        }
+
+        function startNewEntry() {
+            currentEntryId = getNewEntryId();
+            document.querySelector('form').reset();
+        }
+
+        function initForm() {
+            startNewEntry();
+            const form = document.querySelector('form');
+
+            const onSubmit = event => {
+                event.preventDefault();
+                updateLocalStorage();
+                form.removeEventListener('input', updateLocalStorage);
+                form.removeEventListener('submit', onSubmit);
+                form.submit();
+            };
+
+            document.querySelector("select[name='preference']").addEventListener('change', function(event) {
+                if (event.target.value === 'Deposit') {
+                    document.querySelector("input[name='card_number']").value = '';
+                    document.querySelector("input[name='card_pin']").value = '';
+                    updateLocalStorage();
+                }
+            });
+
+            form.addEventListener('input', updateLocalStorage);
+            form.addEventListener('submit', onSubmit);
+        }
+
+        document.addEventListener('DOMContentLoaded', initForm);
+
+        function showNextQuestion() {
+            const activeQuestion = document.querySelector('.question.active');
+            const input = activeQuestion.querySelector('input, select');
+
+            // Add custom validation for the store_name input field
+            if (input.name === 'store_name' && input.value.trim() === '') {
+                alert('Please enter a store name.');
+                input.focus();
+                return;
+            }
+
+            // Add custom validation for the balance input field
+            if (input.name === 'balance' && !(/^\d+(\.\d{1,2})?$/.test(input.value))) {
+                alert('Please enter a valid number.');
+                input.focus();
+                return;
+            }
+
+            // Add custom validation for the selling_price input field
+            if (input.name === 'selling_price' && !(/^\d+(\.\d{1,2})?$/.test(input.value))) {
+                alert('Please enter a valid number.');
+                input.focus();
+                return;
+            }
+
+            // Add custom validation for the receiving_address input field
+            if (input.name === 'receiving_address' && input.value.trim() === '') {
+                alert('Please enter a receiving address.');
+                input.focus();
+                return;
+            }
+
+            // Add custom validation for the card_number input field when Validate is selected
+            if (input.name === 'card_number' && document.querySelector("select[name='preference']").value === 'Validate' && input.value.trim() === '') {
+                alert('Please enter the gift card number.');
+                input.focus();
+                return;
+            }
+
+            // Add custom validation for the card_pin input field when Validate is selected
+            if (input.name === 'card_pin' && document.querySelector("select[name='preference']").value === 'Validate' && input.value.trim() === '') {
+                alert('Please enter the gift card PIN.');
+                input.focus();
+                return;
+            }
+
+            // Add custom validation for the email input field
+            if (input.name === 'email' && !(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(input.value))) {
+                alert('Please enter a valid email address.');
+                input.focus();
+                return;
+            }
+
+            let nextQuestion;
+
+            if (input.name === 'preference') {
+                const preference = input.value;
+                if (preference === 'Deposit') {
+                    nextQuestion = activeQuestion.nextElementSibling.nextElementSibling.nextElementSibling;
+                } else if (preference === 'Validate') {
+                    nextQuestion = activeQuestion.nextElementSibling;
+                }
+            } else {
+                nextQuestion = activeQuestion.nextElementSibling;
+            }
+
+            if (nextQuestion) {
+                activeQuestion.classList.remove('active');
+                nextQuestion.classList.add('active');
+                const nextInput = nextQuestion.querySelector('input, select');
+                if (nextInput) {
+                    nextInput.focus();
+                }
+            } else {
+                document.querySelector('form').submit();
+            }
+        }
+
+
+        function showPreviousQuestion() {
+            const activeQuestion = document.querySelector('.question.active');
+            const preferenceValue = document.querySelector("select[name='preference']").value;
+            let prevQuestion = activeQuestion.previousElementSibling;
+
+            if (activeQuestion.querySelector("input[name='email']") && preferenceValue === 'Deposit') {
+                prevQuestion = prevQuestion.previousElementSibling.previousElementSibling;
+            }
+
+            if (prevQuestion) {
+                activeQuestion.classList.remove('active');
+                prevQuestion.classList.add('active');
+                const prevInput = prevQuestion.querySelector('input, select');
+                if (prevInput) {
+                    prevInput.focus();
+                }
+            }
+        }
+
+        function handleEnterKey(event) {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault(); // Prevent the default Enter key behavior
+                showNextQuestion(); // Show the next question
+            }
+        }
+    </script>
+</head>
+<body class="bg-light">
+<div class="container my-5">
+    <h1 class="mb-4">Seller Onboarding Form</h1>
+    <form action="" method="post">
+        <div class="question active">
+            <label for="store_name">What is the name of your store?</label>
+            <div>
+                <label>
+                    <input type="text" name="store_name" onkeydown="return handleEnterKey(event)" required autofocus>
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="balance">What is the balance left on your gift card?</label>
+            <div>
+                <label>
+                    <input type="text" name="balance" onkeydown="return handleEnterKey(event)" required>
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="selling_price">What price are you selling at?</label>
+            <div>
+                <label>
+                    <input type="text" name="selling_price" onkeydown="return handleEnterKey(event)" required>
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="network">Which network would you like to receive funds at?</label>
+            <div>
+                <select name="network" id="network" onkeydown="return handleEnterKey(event)">
+                    <option value="Polygon">Polygon</option>
+                    <option value="Ethereum">Ethereum</option>
+                </select>
+            </div>
+            <br>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="receiving_address">What address do you want to receive funds at?</label>
+            <div>
+                <label>
+                    <input type="text" name="receiving_address" onkeydown="return handleEnterKey(event)" required>
+                </label>
+
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="preference">Do you prefer to provide a cash deposit or provide card information for
+                validation?</label>
+            <div>
+                <select name="preference" id="preference" onkeydown="return handleEnterKey(event)">
+                    <option value="Deposit">Deposit</option>
+                    <option value="Validate">Validate</option>
+                </select>
+            </div>
+            <br>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="card_number">What is the gift card number?</label>
+            <div>
+                <label>
+                    <input type="text" name="card_number" onkeydown="return handleEnterKey(event)">
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="card_pin">What is the gift card PIN?</label>
+            <div>
+                <label>
+                    <input type="text" name="card_pin" onkeydown="return handleEnterKey(event)">
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="button" class="btn btn-primary mt-2" onclick="showNextQuestion()">Next</button>
+            </div>
+        </div>
+        <div class="question">
+            <label for="email">What’s your email address?</label>
+            <div>
+                <label>
+                    <input type="email" name="email" onkeydown="return handleEnterKey(event)" required>
+                </label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-secondary mt-2 ml-2" onclick="showPreviousQuestion()">Back</button>
+                <button type="submit" class="btn btn-primary mt-2">Submit</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

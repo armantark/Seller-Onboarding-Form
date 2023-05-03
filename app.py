@@ -12,9 +12,13 @@ results = []
 # 1. Made it so you can press enter/return to go to the next question
 # 2. Made it so the text box is auto-selected when you press next
 # 3. Made the format of the results table less cluttered and easier to read via bootstrap styling
-# 4. Add a button on the thank you page to start a new entry, also made the thank you page a new route
+# 4. Add a button on the thank you page to start a new entry, also made the thank you page a
+# new route
 # 5. Added a "wipe data" button on the results.html page
-# 6. Made it so if you decide to change back to deposit after selecting valid, the gift card number and pin are removed
+# 6. Made it so if you decide to change back to deposit after selecting valid, the gift card
+# number and pin are removed
+# 7. Added a button to go to the results table on the thank you page and a
+# button to go back to the survey on the results table
 
 
 @app.route('/', methods=['GET', 'POST'])

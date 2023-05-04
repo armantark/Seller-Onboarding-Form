@@ -6,7 +6,7 @@ This web application is a simple and user-friendly seller onboarding form that a
 
 - `app.py`: The main Flask application file that handles routes and form processing.
 - `form.html`: The HTML template for the seller onboarding form, which includes client-side JavaScript for form validation and navigation between form questions.
-- `thank_you.html`: The HTML template with a thank you message for a submitted form, with a link to start a new entry.
+- `thank_you.html`: The HTML template with a thank you message for a submitted form, with a link to start a new entry or view the results table.
 - `results.html`: The HTML template to show the table of results with proper bootstrap formatting based off stored local storage.
 
 ## Features
@@ -30,6 +30,8 @@ pip install flask
 python app.py
 ```
 3. Access the application in your web browser at `http://localhost:5001`.
+
+Alternatively, can access hosted site at https://armantark.pythonanywhere.com
 
 ## Contributing
 
